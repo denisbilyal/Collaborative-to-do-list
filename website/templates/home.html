@@ -1,0 +1,21 @@
+{% extends "base.html" %} 
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<br/>
+<form method="POST">
+    <h3 align="center">Create table</h3>
+    <div class="form-group">
+      <label for="table_name">Table name</label>
+      <input
+        type="text"
+        class="form-control"
+        id="table_name"
+        name="table_name"
+        placeholder="Enter table name"
+      />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Create table</button>
+  </form>
+{% endblock %}

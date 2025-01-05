@@ -1,0 +1,29 @@
+{% extends "base.html" %} 
+{% block title %}Requests{% endblock %}
+
+
+
+{% block content %}
+
+<h1>Tables</h1>
+<table border="1" style="width: 50%; margin: 0 auto; text-align: center; border-collapse: collapse;">
+    <thead>
+        <th>Sender</th>
+        <th>Table name</th>
+        <th>Actions</th>
+    </thead>
+
+    <tbody>
+        {% for table in current_user.tables %}
+        
+        <tr>
+            <td></td>
+            <td>{{ table.table.table_name }}</td>
+            <td>join or dec</td>
+        </tr>
+
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
