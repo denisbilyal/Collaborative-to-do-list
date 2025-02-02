@@ -14,12 +14,22 @@
     </thead>
 
     <tbody>
-        {% for table in current_user.tables %}
+        {% for request in current_user.received_requests %}
         
         <tr>
-            <td></td>
-            <td>{{ table.table.table_name }}</td>
-            <td>join or dec</td>
+            <td>{{ request.sender.username }}</td>
+            <td>{{ request.table.table_name }}</td>
+            <td>
+                <div style="display: flex; align-items: left; gap: 10px;">
+                    <form action="/requests-accept" method="POST">
+                        <button type="submit" class="btn btn-primary" value="{{ request.table.id }}" id="table_id" name="table_id">Accept</button>
+                    </form>
+                    <br/>
+                    <form action="/requests-decline" method="POST">
+                        <button type="submit" class="btn btn-primary" value="{{ request.table.id }}" id="table_id" name="table_id">Decline</button>
+                    </form>
+                </div>
+            </td>
         </tr>
 
         {% endfor %}

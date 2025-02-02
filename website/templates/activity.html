@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% import "macros.html" as macro %}
+{% block title %}{{ table.table_name }}{% endblock %}
+
+{% block content %}
+
+{{ macro.in_table(table) }}
+
+    <h1>Activity</h1>
+<table border="1" style="width: 50%; margin: 0 auto; text-align: center; border-collapse: collapse;">
+    <thead>
+        <th>User</th>
+        <th>Action</th>
+        <th>Timestamp</th>
+    </thead>
+
+    <tbody>
+        {% for activity in activities %}
+        
+        <tr>
+            <td>{{ activity.user.username }}</td>
+            <td>{{ activity.info }}</td>
+            <td>{{ activity.timestamp }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+
+{% endblock %}
+

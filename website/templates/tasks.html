@@ -1,7 +1,14 @@
 {% extends "base.html" %}
+{% import "macros.html" as macro %}
 {% block title %}{{ table.table_name }}{% endblock %}
 
 {% block content %}
+
+{{ macro.in_table(table) }}
+
 <h1>This table is {{ table.table_name }}</h1>
+
+
+
 {% endblock %}
 

@@ -1,15 +1,19 @@
 from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import login_required, login_user, logout_user, current_user
-from .models import User
+from ..models import User
 from werkzeug.security import generate_password_hash, check_password_hash
-from . import db
+from .. import db
 
 auth = Blueprint('auth', __name__)
 
 
-@auth.route('/login', methods=['GET', 'POST'])
+@auth.route('/login', methods=['GET'])
 def login():
     logout_user()
+    return render_template('login.html', user=current_user)
+
+@auth.route('/login-enter', methods=['POST'])
+def login_enter():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -18,7 +22,7 @@ def login():
             if check_password_hash(user.password, password):
                 # flash success
                 login_user(user, remember=True)
-                return redirect(url_for('views.home'))
+                return redirect(url_for('home.home'))
             else:
                 pass
                 # flash error not valid password
@@ -26,11 +30,15 @@ def login():
             pass
             # flash error not valid user
     
-    return render_template('login.html', user=current_user)
+    return redirect(url_for('auth.login'))
 
-@auth.route('/sign-up', methods=['GET', 'POST'])
+@auth.route('/sign-up', methods=['GET'])
 def sign_up():
     logout_user()
+    return render_template('sign_up.html', user=current_user)
+
+@auth.route('/sign-up-create', methods=['POST'])
+def sign_up_create():
     if request.method == 'POST':
         username = request.form.get('username')
         password1 = request.form.get('password1')
@@ -51,7 +59,8 @@ def sign_up():
             return redirect(url_for('auth.login'))
 
             
-    return render_template('sign_up.html', user=current_user)
+    return redirect(url_for('auth.sign_up'))
+
 
 
 @auth.route('/logout')

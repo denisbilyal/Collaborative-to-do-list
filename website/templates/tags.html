@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% import "macros.html" as macro %}
+{% block title %}{{ table.table_name }}{% endblock %}
+
+{% block content %}
+
+{{ macro.in_table(table) }}
+
+    <!-- Form to create a new tag -->
+    <form action="/tables/{{ table.id }}/create-tag" method="POST" autocomplete="off">
+        <h3 align="center">Create tag</h3>
+        <div class="form-group">
+          <label for="tag_name">tag name</label>
+          <input
+            type="text"
+            class="form-control"
+            id="tag_name"
+            name="tag_name"
+            placeholder="Enter tag name"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Create table</button>
+      </form>
+      <br/>
+    <!-- Table to display tags -->
+    <h1>Tags</h1>
+<table border="1" style="width: 50%; margin: 0 auto; text-align: center; border-collapse: collapse;">
+    <thead>
+        <th>Names</th>
+        <th>Actions</th>
+    </thead>
+
+    <tbody>
+        {% for tag in tags %}
+        
+        <tr>
+            <td>{{ tag.name }}</td>
+            <td>
+                <br/>
+                <form action="/tables/{{ table.id }}/update-tag" method="POST" style="display: flex; align-items: left; gap: 10px;" autocomplete="off">
+                    <input
+                    type="text"
+                    class="form-control"
+                    id="new_tag_name"
+                    name="new_tag_name"
+                    placeholder="Enter new tag name"
+                    />
+                    <button type="submit" class="btn btn-primary" value="{{ tag.id }}" id="tag_id" name="tag_id">Update</button>
+                </form>
+                <br/>
+                <form action="/tables/{{ table.id }}/delete-tag" method="POST" style="display: flex; align-items: center; gap: 10px; justify-content: flex-end;">
+                    <button type="submit" class="btn btn-primary" value="{{ tag.id }}" id="tag_id" name="tag_id">Delete</button>
+                </form>
+                <br/>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+
+{% endblock %}
+

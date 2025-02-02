@@ -29,6 +29,7 @@ class User(db.Model, UserMixin):
     password: Mapped[str] = mapped_column()
 
     tables: Mapped[list['UserTable']] = relationship(back_populates='user')
+    received_requests: Mapped[list['Request']] = relationship(foreign_keys="[Request.recipient_id]")
 
 class UserTable(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), primary_key=True)
@@ -51,6 +52,9 @@ class Request(db.Model):
     sender_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
     recipient_id: Mapped[int] = mapped_column(ForeignKey('user.id'), primary_key=True)
     table_id: Mapped[int] = mapped_column(ForeignKey('table.id'), primary_key=True)
+
+    table: Mapped['Table'] = relationship()
+    sender: Mapped['User'] = relationship(foreign_keys=sender_id)
 
 class Tag(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)

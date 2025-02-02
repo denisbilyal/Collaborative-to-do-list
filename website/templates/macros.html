@@ -1,0 +1,29 @@
+{% macro in_table(table)%}
+
+<nav class="navbar navbar-expand-lg navbar-light">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbar2"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbar2">
+      <div class="navbar-nav" >
+        <a class="nav-item nav-link" id="tasks" href="/tables/{{table.id}}" style="font-size: 1.1rem;">Tasks</a>
+        <a class="nav-item nav-link" id="tags" href="/tables/{{table.id}}/tags" style="font-size: 1.1rem;">Tags</a>
+        <a class="nav-item nav-link" id="activity" href="/tables/{{table.id}}/activity" style="font-size: 1.1rem;">Activity</a>
+        <a class="nav-item nav-link" id="users" href="/tables/{{table.id}}/users" style="font-size: 1.1rem;">Users</a>
+        <a class="nav-item nav-link" id="settings" href="/tables/{{table.id}}/settings" style="font-size: 1.1rem;">Settings</a>
+      </div>
+      <div class="navbar-nav ml-auto" >
+        <a class="nav-item nav-link" id="endSession" href="/tables" style="font-size: 1.1rem;">Leave table</a>
+      </div>
+
+    </div>
+  </nav>
+
+  
+
+{%- endmacro %}
