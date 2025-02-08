@@ -18,15 +18,15 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)
 
-    auth_module = import_module('website.routes.auth')
-    home_module = import_module('website.routes.home')
-    tables_module = import_module('website.routes.tables')
-    requests_module = import_module('website.routes.requests')
-    activity_module = import_module('website.routes.activity')
-    settings_module = import_module('website.routes.settings')
-    tags_module = import_module('website.routes.tags')
-    tasks_module = import_module('website.routes.tasks')
-    users_module = import_module('website.routes.users')
+    auth_module = import_module('src.routes.auth')
+    home_module = import_module('src.routes.home')
+    tables_module = import_module('src.routes.tables')
+    requests_module = import_module('src.routes.requests')
+    activity_module = import_module('src.routes.activity')
+    settings_module = import_module('src.routes.settings')
+    tags_module = import_module('src.routes.tags')
+    tasks_module = import_module('src.routes.tasks')
+    users_module = import_module('src.routes.users')
     app.register_blueprint(auth_module.auth, url_prefix='/')
     app.register_blueprint(home_module.home_bp, url_prefix='/')
     app.register_blueprint(tables_module.tables_bp, url_prefix='/')
@@ -42,7 +42,7 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
 
-    models_module = import_module('website.models')
+    models_module = import_module('src.models')
 
     with app.app_context():
         db.create_all()
