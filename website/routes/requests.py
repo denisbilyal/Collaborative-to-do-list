@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from ..models import Table, UserTable, Role, Request
+from ..models import Table, UserTable, Role, Request, Action
 from .. import db
+from datetime import date 
 
 requests_bp = Blueprint('requests', __name__)
 
@@ -23,7 +24,11 @@ def accept():
         invite = db.get_or_404(Request, [current_user.id, table_id])
         db.session.delete(invite)
 
+        activity = Action(info=f'Joined the table', timestamp=date.today(), table_id=table_id, user_id=current_user.id)
+        db.session.add(activity)
+        
         db.session.commit()
+        flash('Invitation successfully accepted.')
 
 
     return redirect(url_for('requests.requests'))
@@ -41,5 +46,6 @@ def decline():
         db.session.delete(invite)
 
         db.session.commit()
+        flash('Invitation successfully declined.', 'error')
 
     return redirect(url_for('requests.requests'))

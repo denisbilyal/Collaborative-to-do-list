@@ -1,14 +1,181 @@
 {% extends "base.html" %}
 {% import "macros.html" as macro %}
-{% block title %}{{ table.table_name }}{% endblock %}
-
+{% block title %}
+{{ table.table_name }}
+{% endblock %}
 {% block content %}
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
 {{ macro.in_table(table) }}
+<br>
 
-<h1>This table is {{ table.table_name }}</h1>
+<form id="create-task-form" action="/tables/{{ table.id }}/create-task" method="POST" autocomplete="off">
+    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px;">
+        <label for="task_name">Name</label>
+        <label for="task_description">Description</label>
+        <label>Tag</label>
+        <label>Priority</label>
+        <label>Due Date</label>
+        <input
+            type="text"
+            class="form-control"
+            id="task_name"
+            name="task_name"
+            placeholder="Enter task name"
+        />
+        <input
+            type="text"
+            class="form-control"
+            id="task_description"
+            name="task_description"
+            placeholder="Enter task description"
+        />
+        <select name="tag_id" id="tag_id">
+            {% for tag in tags %}
+                <option value="{{ tag.id }}">{{ tag.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="priority" id="priority">
+            {% for priority in priorities %}
+                <option value="{{ priority.name }}">{{ priority.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="date" name="due_date" id="due_date" />
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Create task</button>
+</form>
 
+<br>
+<h1>Tasks</h1>
+<table id="tasks-table" border="1" style="width: 100%; margin: 0 auto; text-align: center; border-collapse: collapse; table-layout: fixed;">
+    <thead>
+        <tr>
+            <th>To Do</th>
+            <th>In Progress</th>
+            <th>Completed</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Rows will be dynamically generated -->
+    </tbody>
+</table>
 
+<script>
+    // Serialize the tasks data from the server
+    const initialTasksData = {
+        tasks_to_do: {{ tasks_to_do | tojson }},
+        tasks_progress: {{ tasks_progress | tojson }},
+        tasks_finished: {{ tasks_finished | tojson }}
+    };
+
+    // Function to render tasks
+    function renderTasks(tasksData, userId) {
+        const tbody = document.querySelector('#tasks-table tbody');
+        tbody.innerHTML = ''; // Clear existing rows
+
+        const maxRows = Math.max(
+            tasksData.tasks_to_do.length,
+            tasksData.tasks_progress.length,
+            tasksData.tasks_finished.length
+        );
+
+        for (let i = 0; i < maxRows; i++) {
+            const row = document.createElement('tr');
+
+            // To Do Column
+            const todoCell = document.createElement('td',);
+            if (i < tasksData.tasks_to_do.length) {
+                const task = tasksData.tasks_to_do[i];
+                todoCell.innerHTML = `
+                    <b>${task.title}</b><br>
+                    ${task.description}<br>
+                    <b>Tag:</b> ${task.tag?.name || 'N/A'}<br>
+                    <b>Priority:</b> ${task.priority?.name || 'N/A'}<br>
+                    <b>Due Date:</b> ${task.due_date || 'N/A'}<br>
+                    <div style="display: flex; justify-content: center; gap: 3px; margin-top: 10px;">
+                        <form action="/tables/{{ table.id }}/start-task" method="POST">
+                            <button type="submit" class="btn btn-primary btn-success" name="task_id" value="${task.id}">Start</button>
+                        </form>
+                        <form action="/tables/{{ table.id }}/delete-task" method="POST">
+                            <button type="submit" class="btn btn-primary btn-danger" name="task_id" value="${task.id}">Delete</button>
+                        </form>
+                    </div>
+                `;
+            }
+            todoCell.setAttribute('style', 'word-wrap: break-word; white-space: normal; overflow: hidden; padding: 10px;')
+            row.appendChild(todoCell);
+
+            // In Progress Column
+            const progressCell = document.createElement('td');
+            if (i < tasksData.tasks_progress.length) {
+                const task = tasksData.tasks_progress[i];
+                progressCell.innerHTML = `
+                    <b>${task.title}</b><br>
+                    ${task.description}<br>
+                    <b>Tag:</b> ${task.tag?.name || 'N/A'}<br>
+                    <b>Priority:</b> ${task.priority?.name || 'N/A'}<br>
+                    <b>Picked up by:</b> ${task.user?.username || 'N/A'}<br>
+                    <b>Due Date:</b> ${task.due_date || 'N/A'}<br>
+                    ${task.user?.id === userId ? `
+                    <div style="display: flex; justify-content: center; gap: 3px; margin-top: 10px;">
+                        <form action="/tables/{{ table.id }}/finish-task" method="POST">
+                            <button type="submit" class="btn btn-primary btn-success" name="task_id" value="${task.id}">Finish</button>
+                        </form>
+                        <form action="/tables/{{ table.id }}/reject-task" method="POST">
+                            <button type="submit" class="btn btn-primary btn-danger" name="task_id" value="${task.id}">Reject</button>
+                        </form>
+                    </div>
+                    ` : ''}
+                `;
+            }
+            progressCell.setAttribute('style', 'word-wrap: break-word; white-space: normal; overflow: hidden; padding: 10px;')
+            row.appendChild(progressCell);
+
+            // Completed Column
+            const finishedCell = document.createElement('td');
+            if (i < tasksData.tasks_finished.length) {
+                const task = tasksData.tasks_finished[i];
+                finishedCell.innerHTML = `
+                    <b>${task.title}</b><br>
+                    ${task.description}<br>
+                    <b>Tag:</b> ${task.tag?.name || 'N/A'}<br>
+                    <b>Priority:</b> ${task.priority?.name || 'N/A'}<br>
+                    <b>Finished by:</b> ${task.user?.username || 'N/A'}<br>
+                    <b>Finish Date:</b> ${task.date || 'N/A'}<br>
+                    <b>Due Date:</b> ${task.due_date || 'N/A'}<br>
+                    <div style="display: flex; justify-content: center; gap: 3px; margin-top: 10px;">
+                        <form action="/tables/{{ table.id }}/clear-task" method="POST">
+                            <button type="submit" class="btn btn-primary btn-success" name="task_id" value="${task.id}">Clear</button>
+                        </form>
+                        ${task.user?.id === userId ? `
+
+                        <form action="/tables/{{ table.id }}/undo-task" method="POST">
+                            <button type="submit" class="btn btn-primary btn-danger" name="task_id" value="${task.id}">Undo</button>
+                        </form>
+                        ` : ''}
+
+                    </div>
+                `;
+            }
+            finishedCell.setAttribute('style', 'word-wrap: break-word; white-space: normal; overflow: hidden; padding: 10px;')
+            row.appendChild(finishedCell);
+
+            tbody.appendChild(row);
+        }
+    }
+
+    // Render tasks on page load
+    renderTasks(initialTasksData);
+
+    // WebSocket setup
+    const socket = io();
+    socket.emit('join_room', 'table_{{ table.id }}');
+
+    // Listen for updates
+    socket.on('update_tasks', function(updatedTasksData) {
+        const userId = {{ user_id }};
+        renderTasks(updatedTasksData, userId);
+    });
+</script>
 
 {% endblock %}
-

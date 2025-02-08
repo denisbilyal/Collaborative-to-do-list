@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% import "macros.html" as macro %}
+{% block title %}{{ table.table_name }}{% endblock %}
+
+{% block content %}
+
+{{ macro.in_table(table) }}
+
+{% if role.name == "CREATOR"%}
+    <form action="/tables/{{ table.id }}/edit-table" method="POST" autocomplete="off">
+        <div class="form-group">
+          <label for="table_name">Edit table name</label>
+          <input
+            type="text"
+            class="form-control"
+            id="table_name"
+            name="table_name"
+            placeholder="Enter new table name"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Edit name</button>
+      </form>
+      <br/>
+
+
+    <form action="/tables/{{ table.id }}/delete-table" method="POST">
+        <button type="submit" class="btn btn-primary">Delete table</button>
+    </form>
+{% endif %}
+    <br>
+
+    <form action="/tables/{{ table.id }}/leave-table" method="POST">
+        <button type="submit" class="btn btn-primary">Leave table forever</button>
+    </form>
+
+    
+
+{% endblock %}
+

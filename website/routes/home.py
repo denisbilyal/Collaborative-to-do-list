@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from ..models import Table, UserTable, Role
+from ..models import Table, UserTable, Role, Action
 from .. import db
+from datetime import date
 
 home_bp = Blueprint('home', __name__)
 
@@ -25,9 +26,11 @@ def create_table():
 
             new_user_table = UserTable(user_id=current_user.id, table_id=new_table.id, role=Role.CREATOR)
             db.session.add(new_user_table)
+            activity = Action(info=f'Joined the table', timestamp=date.today(), table_id=new_table.id, user_id=current_user.id)
+            db.session.add(activity)
             db.session.commit()
+            flash('Table successfully created.') 
         else:
-            pass
-            # flash existing table name
+            flash('Table with this name already exists.', 'error')
 
     return redirect(url_for('home.home'))

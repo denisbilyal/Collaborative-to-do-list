@@ -27,27 +27,41 @@
 <table border="1" style="width: 50%; margin: 0 auto; text-align: center; border-collapse: collapse;">
     <thead>
         <th>Name</th>
+        <th>Role</th>
         <th>Actions</th>
     </thead>
 
     <tbody>
-        {% for user in users %}
+        {% for cur_user in users_in_table %}
         
         <tr>
-            <td>{{ user.username }}</td>
+            <td>{{ cur_user.user.username }}</td>
+            <td>{{ cur_user.role.name }}</td>
+            {% if user.id != cur_user.user.id %}
             <td>
-                <br/>
+
                 <div style="display: flex; align-items: left; gap: 10px;">
+                {% if role.name == "ADMIN" or role.name == "CREATOR" %}
+
+                    {% if cur_user.role.name != 'ADMIN' %}
                     <form action="/tables/{{ table.id }}/promote-user" method="POST">
-                        <button type="submit" class="btn btn-primary" value="{{ user.id }}" id="user_id" name="user_id">Promote</button>
+                        <button type="submit" class="btn btn-primary" value="{{ cur_user.user.id }}" id="user_id" name="user_id">Promote</button>
                     </form>
-                    <br/>
-                    <form action="/tables/{{ table.id }}/kick-user" method="POST">
-                        <button type="submit" class="btn btn-primary" value="{{ user.id }}" id="user_id" name="user_id">Kick</button>
+                    {% else %}
+                    <form action="/tables/{{ table.id }}/demote-user" method="POST">
+                        <button type="submit" class="btn btn-primary" value="{{ cur_user.user.id }}" id="user_id" name="user_id">Demote</button>
                     </form>
-                </div>
+                    {% endif %}
                 <br/>
+                    {% if role.value > cur_user.role.value %}
+                    <form action="/tables/{{ table.id }}/kick-user" method="POST">
+                        <button type="submit" class="btn btn-primary" value="{{ cur_user.user.id }}" id="user_id" name="user_id">Kick</button>
+                    </form>
+                    {% endif %}
+            </div>
+                {% endif %}
             </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </tbody>

@@ -1,11 +1,10 @@
 from enum import Enum
 
-from . import db
-
 from flask_login import UserMixin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, ForeignKey
 
+from . import db
 
 class Role(Enum):
     REGULAR = 0
@@ -13,7 +12,7 @@ class Role(Enum):
     CREATOR = 2
 
 class TaskType(Enum):
-    UNSTARTED = 0
+    TO_DO = 0
     IN_PROGRESS = 1
     COMPLETED = 2
 
@@ -29,6 +28,7 @@ class User(db.Model, UserMixin):
     password: Mapped[str] = mapped_column()
 
     tables: Mapped[list['UserTable']] = relationship(back_populates='user')
+
     received_requests: Mapped[list['Request']] = relationship(foreign_keys="[Request.recipient_id]")
 
 class UserTable(db.Model):
@@ -43,10 +43,12 @@ class Table(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     table_name: Mapped[str] = mapped_column(String(30), unique=True)
 
-    users: Mapped[list['UserTable']] = relationship(back_populates='table')
-    tags: Mapped[list['Tag']] = relationship()
-    tasks: Mapped[list['Task']] = relationship()
-    actions: Mapped[list['Action']] = relationship()
+    users: Mapped[list['UserTable']] = relationship(back_populates='table',
+                                                     cascade='all, delete-orphan')
+    tags: Mapped[list['Tag']] = relationship(cascade='all, delete-orphan')
+    tasks: Mapped[list['Task']] = relationship(cascade='all, delete-orphan')
+    actions: Mapped[list['Action']] = relationship(cascade='all, delete-orphan')
+    requests: Mapped[list['Request']] = relationship(cascade='all, delete-orphan')
 
 class Request(db.Model):
     sender_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
@@ -87,4 +89,3 @@ class Action(db.Model):
     table_id: Mapped[int] = mapped_column(ForeignKey('table.id'))
 
     user: Mapped['User'] = relationship()
-
