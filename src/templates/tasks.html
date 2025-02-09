@@ -68,8 +68,10 @@
         tasks_finished: {{ tasks_finished | tojson }}
     };
 
+    const userId = {{ user_id }};
+
     // Function to render tasks
-    function renderTasks(tasksData, userId) {
+    function renderTasks(tasksData) {
         const tbody = document.querySelector('#tasks-table tbody');
         tbody.innerHTML = ''; // Clear existing rows
 
@@ -116,7 +118,7 @@
                     <b>Priority:</b> ${task.priority?.name || 'N/A'}<br>
                     <b>Picked up by:</b> ${task.user?.username || 'N/A'}<br>
                     <b>Due Date:</b> ${task.due_date || 'N/A'}<br>
-                    ${task.user?.id === userId ? `
+                    ${task.user?.id == userId ? `
                     <div style="display: flex; justify-content: center; gap: 3px; margin-top: 10px;">
                         <form action="/tables/{{ table.id }}/finish-task" method="POST">
                             <button type="submit" class="btn btn-primary btn-success" name="task_id" value="${task.id}">Finish</button>
@@ -147,7 +149,7 @@
                         <form action="/tables/{{ table.id }}/clear-task" method="POST">
                             <button type="submit" class="btn btn-primary btn-success" name="task_id" value="${task.id}">Clear</button>
                         </form>
-                        ${task.user?.id === userId ? `
+                        ${task.user?.id == userId ? `
 
                         <form action="/tables/{{ table.id }}/undo-task" method="POST">
                             <button type="submit" class="btn btn-primary btn-danger" name="task_id" value="${task.id}">Undo</button>
@@ -173,8 +175,7 @@
 
     // Listen for updates
     socket.on('update_tasks', function(updatedTasksData) {
-        const userId = {{ user_id }};
-        renderTasks(updatedTasksData, userId);
+        renderTasks(updatedTasksData);
     });
 </script>
 

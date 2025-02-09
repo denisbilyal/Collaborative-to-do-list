@@ -6,7 +6,6 @@
 
 {{ macro.in_table(table) }}
 
-    <!-- Form to create a new tag -->
     <form action="/tables/{{ table.id }}/invite-user" method="POST" autocomplete="off">
         <h3 align="center">Invite User</h3>
         <div class="form-group">
@@ -41,7 +40,7 @@
             <td>
 
                 <div style="display: flex; align-items: left; gap: 10px;">
-                {% if role.name == "ADMIN" or role.name == "CREATOR" %}
+                {% if role.value >= cur_user.role.value %}
 
                     {% if cur_user.role.name != 'ADMIN' %}
                     <form action="/tables/{{ table.id }}/promote-user" method="POST">
@@ -51,7 +50,7 @@
                     <form action="/tables/{{ table.id }}/demote-user" method="POST">
                         <button type="submit" class="btn btn-primary" value="{{ cur_user.user.id }}" id="user_id" name="user_id">Demote</button>
                     </form>
-                    {% endif %}
+                {% endif %}
                 <br/>
                     {% if role.value > cur_user.role.value %}
                     <form action="/tables/{{ table.id }}/kick-user" method="POST">

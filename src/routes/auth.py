@@ -113,7 +113,7 @@ def sign_up_create() -> Response:
         else:
             new_user = User(
                 username=username,
-                password=generate_password_hash(password1, method='sha256')
+                password=generate_password_hash(password1)
             )
             db.session.add(new_user)
             db.session.commit()

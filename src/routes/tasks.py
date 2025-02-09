@@ -32,7 +32,7 @@ from flask_login import login_required, current_user
 from flask_socketio import join_room
 from werkzeug.wrappers import Response
 from src import db, socketio
-from ..models import Table, UserTable, Priority, Task, TaskType
+from ..models import Table, UserTable, Priority, Task, TaskType, Tag
 from .activity import save_action
 
 
@@ -107,7 +107,7 @@ def task_to_dict(task: Task) -> dict[str, Any]:
         'description': task.description,
         'tag': {'name': task.tag.name} if task.tag else None,
         'priority': {'name': task.priority.name} if task.priority else None,
-        'user': {'username': task.user.username} if task.user else None,
+        'user': {'username': task.user.username, 'id': task.user_id} if task.user else None,
         'due_date': f'{task.due_date[8:10]}/{task.due_date[5:7]}/{task.due_date[0:4]}'
         if task.due_date else None,
         'date': f'{task.date[8:10]}/{task.date[5:7]}/{task.date[0:4]}'
@@ -138,7 +138,7 @@ def tasks(table_id: int) -> str:
     db.get_or_404(UserTable, [user_id, table_id])
 
     tasks_to_do, tasks_progress, tasks_finished = get_tasks(table_id)
-
+    tags = Tag.query.filter_by(table_id=table_id)
     return render_template(
         'tasks.html',
         user=current_user,
@@ -147,7 +147,8 @@ def tasks(table_id: int) -> str:
         tasks_to_do=tasks_to_do,
         tasks_progress=tasks_progress,
         tasks_finished=tasks_finished,
-        user_id=current_user.id
+        user_id=current_user.id,
+        tags=tags
     )
 
 
